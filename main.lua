@@ -2,17 +2,25 @@ local debug = true
 
 function love.load()
     player = {}
-    player.x = 370
+    player.x = 170
     player.y = 200
     player.speed = 3
-    player.velocity = 5
+    player.velocity = 0
+    player.gravity = 500
+    player.jumpStrength = -300
+    player.sprite = love.graphics.newImage('sprites/bird.png')
+
+    background = love.graphics.newImage('sprites/day-background.png')
 end
 
 function DrawPlayer()
-    love.graphics.rectangle("fill", player.x, player.y, 50, 50)
+    love.graphics.draw(player.sprite, player.x, player.y)
 end
 
--- function 
+function DrawBackground()
+    love.graphics.draw(background, 0, 0)
+end
+
 function love.keypressed(key)
     if key == "f3" then
         debug = not debug
@@ -20,17 +28,18 @@ function love.keypressed(key)
 
     if key == "space" then
         -- load functionality
-        player.y = player.y - 120
+        player.velocity = player.jumpStrength
     end
-
 end
 
-function love.update(dt)
-    player.y = player.y + player.velocity
+function love.update(dt) -- 0.0167
+    player.velocity = player.velocity + player.gravity * dt
+    player.y = player.y + player.velocity * dt
 end
 
 -- primary function that draws everything
 function love.draw()
+    DrawBackground()
     DrawPlayer()
 
     if debug then
