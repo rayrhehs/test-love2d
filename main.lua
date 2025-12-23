@@ -16,6 +16,13 @@ function love.load()
     background.y = 0
     background.width = 400
     background.height = 600
+
+    ground = {}
+    ground.x = 0
+    ground.y = background.height - 64
+    ground.width = 400
+    ground.height = 64
+    ground.sprite = love.graphics.newImage('sprites/ground.png')
 end
 
 function DrawPlayer()
@@ -28,6 +35,15 @@ function DrawBackground()
 
     if background.x <= -background.width then
         background.x = 0
+    end
+end
+
+function DrawGround()
+    love.graphics.draw(ground.sprite, ground.x, ground.y)
+    love.graphics.draw(ground.sprite, ground.x + ground.width, ground.y)
+
+    if ground.x <= -ground.width then
+        ground.x = 0
     end
 end
 
@@ -47,12 +63,14 @@ function love.update(dt) -- 0.0167
     player.velocity = player.velocity + player.gravity * dt
     player.y = player.y + player.velocity * dt
 
-    background.x = background.x - 580 * dt
+    background.x = background.x - 80 * dt
+    ground.x = ground.x - 120 * dt
 end
 
 -- primary function that draws everything
 function love.draw()
     DrawBackground()
+    DrawGround()
     DrawPlayer()
 
     if debug then
