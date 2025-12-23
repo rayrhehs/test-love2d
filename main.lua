@@ -10,7 +10,12 @@ function love.load()
     player.jumpStrength = -300
     player.sprite = love.graphics.newImage('sprites/bird.png')
 
-    background = love.graphics.newImage('sprites/day-background.png')
+    background = {}
+    background.sprite = love.graphics.newImage('sprites/day-background.png')
+    background.x = 0
+    background.y = 0
+    background.width = 400
+    background.height = 600
 end
 
 function DrawPlayer()
@@ -18,8 +23,14 @@ function DrawPlayer()
 end
 
 function DrawBackground()
-    love.graphics.draw(background, 0, 0)
+    love.graphics.draw(background.sprite, background.x, 0) -- background 1
+    love.graphics.draw(background.sprite, background.x + background.width, 0) -- background 2 placed ahead of background width
+
+    if background.x <= -background.width then
+        background.x = 0
+    end
 end
+
 
 function love.keypressed(key)
     if key == "f3" then
@@ -35,6 +46,8 @@ end
 function love.update(dt) -- 0.0167
     player.velocity = player.velocity + player.gravity * dt
     player.y = player.y + player.velocity * dt
+
+    background.x = background.x - 580 * dt
 end
 
 -- primary function that draws everything

@@ -5,5 +5,5 @@
     "love.filesystem.load": "loadfile"
   },
   "Lua.workspace.checkThirdParty": false,
-  "Lua.diagnostics.globals": ["player"]
+  "Lua.diagnostics.globals": ["player", "background"]
 }
