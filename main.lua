@@ -24,19 +24,15 @@ function love.load()
     ground.height = 64
     ground.sprite = love.graphics.newImage('sprites/ground.png')
 
-    pipe_up = {}
-    pipe_up.x = 0
-    pipe_up.y = 0
-    pipe_up.width = 78
-    pipe_up.height = 360
-    pipe_up.sprite = love.graphics.newImage('sprites/pipe_up.png')
-
-    pipe_down = {}
-    pipe_down.x = 0
-    pipe_down.y = background.height - 360
-    pipe_down.width = 78
-    pipe_down.height = 360
-    pipe_down.sprite = love.graphics.newImage('sprites/pipe_down.png')
+    pipes = {}
+    pipes.x = 800
+    pipes.y = love.math.random(64, 350)
+    pipes.width = 78
+    pipes.height = 360
+    pipes.gap = 125
+    pipes.sprite = {}
+    pipes.sprite.pipe_up = love.graphics.newImage('sprites/pipe_up.png')
+    pipes.sprite.pipe_down = love.graphics.newImage('sprites/pipe_down.png')
 end
 
 function DrawPlayer()
@@ -62,15 +58,12 @@ function DrawGround()
 end
 
 function DrawPipe()
-    love.graphics.draw(pipe_up.sprite, pipe_up.x, pipe_up.y)
-    love.graphics.draw(pipe_down.sprite, pipe_down.x, pipe_down.y)
+    love.graphics.draw(pipes.sprite.pipe_up, pipes.x, 0 - pipes.height + pipes.y)
+    love.graphics.draw(pipes.sprite.pipe_down, pipes.x, pipes.y + pipes.gap)
 
-    if pipe_up.x <= -pipe_up.width then
-        pipe_up.x = 600
-    end
-
-    if pipe_down.x <= -pipe_down.width then
-        pipe_down.x = 600
+    if pipes.x <= -pipes.width then
+        pipes.x = 400
+        pipes.y = love.math.random(64, 350)
     end
 end
 
@@ -86,15 +79,14 @@ function love.keypressed(key)
     end
 end
 
-function love.update(dt) -- 0.0167
+-- runs every frame
+function love.update(dt) -- dt = ~0.0167
     player.velocity = player.velocity + player.gravity * dt
     player.y = player.y + player.velocity * dt
 
     background.x = background.x - 80 * dt
-    ground.x = ground.x - 120 * dt
-    pipe_down.x = pipe_down.x - 78 * dt
-    pipe_up.x = pipe_up.x - 78 * dt
-
+    ground.x = ground.x - 200 * dt
+    pipes.x = pipes.x - 150 * dt
 end
 
 -- primary function that draws everything
