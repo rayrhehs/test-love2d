@@ -1,4 +1,4 @@
-local debug = true
+local debug = false
 
 function love.load()
     player = {}
@@ -7,10 +7,9 @@ function love.load()
     player.y = 200
     player.width = player.sprite:getWidth()
     player.height = player.sprite:getHeight()
-    player.speed = 3
     player.velocity = 0
-    player.gravity = 500
-    player.jumpStrength = -300
+    player.gravity = 700
+    player.jumpStrength = -250
 
     background = {}
     background.x = 0
@@ -40,6 +39,9 @@ function love.load()
     game.state = true
     game.score = 0
     game.pointPassed = false
+
+    font = love.graphics.newFont('fonts/BaiJamjuree-Bold.ttf', 48)
+    love.graphics.setFont(font)
 end
 
 function DrawPlayer()
@@ -75,13 +77,32 @@ function DrawPipe()
     end
 end
 
+function DrawScore()
+    -- love.graphics.print automatically chooses a font
+    -- love.graphics.printf uses custom formatting
+    love.graphics.setColor(0.196, 0.090, 0.020)
+    love.graphics.printf(tostring(game.score), 0, 50, 400, "center")
+    love.graphics.setColor(1, 1, 1)
+
+end
+
+function DrawStats()
+    love.graphics.print(
+        "FPS: " .. love.timer.getFPS() ..
+        "\nPlayer X: " .. player.x ..
+        "\nPlayer Y: " .. player.y ..
+        "\nScore: " .. game.score ..
+        "\nGame Over: " .. (game.state and "false" or "true"),
+        10, 10
+    )
+end
+
 function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2)
     return x1 < x2 + w2 and
            x2 < x1 + w1 and
            y1 < y2 + h2 and
            y2 < y1 + h1
 end
-
 
 function love.keypressed(key)
     if key == "f3" then
@@ -92,16 +113,27 @@ function love.keypressed(key)
         -- load functionality
         player.velocity = player.jumpStrength
     end
+
+    if game.state == false and key == "r" then
+        game.state = true
+        game.score = 0
+        game.pointPassed = false
+        pipes.x = 800
+        pipes.y = love.math.random(64, 350)
+        player.y = 200
+    end
 end
 
 -- runs every frame
 function love.update(dt) -- dt = ~0.0167
-    player.velocity = player.velocity + player.gravity * dt
-    player.y = player.y + player.velocity * dt
+    if game.state then
+        player.velocity = player.velocity + player.gravity * dt
+        player.y = player.y + player.velocity * dt
 
-    background.x = background.x - 80 * dt
-    ground.x = ground.x - 200 * dt
-    pipes.x = pipes.x - 150 * dt
+        background.x = background.x - 80 * dt
+        ground.x = ground.x - 200 * dt
+        pipes.x = pipes.x - 150 * dt
+    end
 
     -- increase score b/c this is checking for entire pipes obj (top and bottom)
     if player.x >= pipes.x and not game.pointPassed then
@@ -113,27 +145,22 @@ function love.update(dt) -- dt = ~0.0167
         player.velocity = 0
         game.state = false
     end
+
+    if checkCollision(player.x, player.y, player.width, player.height, ground.x, ground.y, ground.width, ground.height) then 
+        player.velocity = 0
+        game.state = false
+    end
 end
 
--- primary function that draws everything
+-- primary function that draws and runs everything per frame
 function love.draw()
-    if not game.state then
-        return
-    end
-
     DrawBackground()
     DrawPipe()
     DrawGround()
     DrawPlayer()
+    DrawScore()
 
     if debug then
-        love.graphics.print(
-            "FPS: " .. love.timer.getFPS() ..
-            "\nPlayer X: " .. player.x ..
-            "\nPlayer Y: " .. player.y ..
-            "\nScore: " .. game.score ..
-            "\nGame Over: " .. (game.state and "false" or "true"),
-            10, 10
-        )
+        DrawStats()
     end
 end
