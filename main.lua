@@ -42,6 +42,10 @@ function love.load()
 
     font = love.graphics.newFont('fonts/BaiJamjuree-Bold.ttf', 48)
     love.graphics.setFont(font)
+
+    slap_sfx = love.audio.newSource('sounds/slap.wav', 'static')
+    woosh_sfx = love.audio.newSource('sounds/woosh.wav', 'static')
+    score_sfx = love.audio.newSource('sounds/score.wav', 'static')
 end
 
 function DrawPlayer()
@@ -109,9 +113,10 @@ function love.keypressed(key)
         debug = not debug
     end
 
-    if key == "space" then
+    if game.state and key == "space" then
         -- load functionality
         player.velocity = player.jumpStrength
+        love.audio.play(woosh_sfx)
     end
 
     if game.state == false and key == "r" then
@@ -121,6 +126,7 @@ function love.keypressed(key)
         pipes.x = 800
         pipes.y = love.math.random(64, 350)
         player.y = 200
+        player.velocity = 0
     end
 end
 
@@ -133,22 +139,26 @@ function love.update(dt) -- dt = ~0.0167
         background.x = background.x - 80 * dt
         ground.x = ground.x - 200 * dt
         pipes.x = pipes.x - 150 * dt
-    end
 
-    -- increase score b/c this is checking for entire pipes obj (top and bottom)
-    if player.x >= pipes.x and not game.pointPassed then
-        game.score = game.score + 1
-        game.pointPassed = true
-    end
+        -- increase score b/c this is checking for entire pipes obj (top and bottom)
+        if player.x >= pipes.x and not game.pointPassed then
+            game.score = game.score + 1
+            game.pointPassed = true
+            love.audio.play(score_sfx)
+        end
 
-    if checkCollision(player.x, player.y, player.width, player.height, pipes.x, pipes.y - pipes.height, pipes.width, pipes.height) or checkCollision(player.x, player.y, player.width, player.height, pipes.x, pipes.y + pipes.gap, pipes.width, pipes.height) then
-        player.velocity = 0
-        game.state = false
-    end
+        if checkCollision(player.x, player.y, player.width, player.height, pipes.x, pipes.y - pipes.height, pipes.width, pipes.height) or checkCollision(player.x, player.y, player.width, player.height, pipes.x, pipes.y + pipes.gap, pipes.width, pipes.height) then
+            player.velocity = 0
+            game.state = false
+            love.audio.play(slap_sfx)
+        end
 
-    if checkCollision(player.x, player.y, player.width, player.height, ground.x, ground.y, ground.width, ground.height) then 
-        player.velocity = 0
-        game.state = false
+        if player.y + player.height >= ground.y or player.y + player.y <= 0 then
+            player.velocity = 0
+            game.state = false
+            love.audio.play(slap_sfx)
+        end
+
     end
 end
 
