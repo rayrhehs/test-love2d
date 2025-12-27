@@ -88,7 +88,12 @@ function DrawScore()
     love.graphics.setColor(0.196, 0.090, 0.020)
     love.graphics.printf(tostring(game.score), 0, 50, 400, "center")
     love.graphics.setColor(1, 1, 1)
+end
 
+function DrawGameOver()
+    love.graphics.setColor(0.196, 0.090, 0.020)
+    love.graphics.printf("Game Over" .. "\nPress R to restart", 0, 200, 400, "center")
+    love.graphics.setColor(1, 1, 1)
 end
 
 function DrawStats()
@@ -179,6 +184,10 @@ function love.draw()
     DrawGround()
     DrawPlayer()
     DrawScore()
+
+    if not game.state then
+        DrawGameOver()
+    end
 
     if debug then
         DrawStats()
