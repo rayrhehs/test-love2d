@@ -7,6 +7,7 @@ function love.load()
     player.y = 200
     player.width = player.sprite:getWidth()
     player.height = player.sprite:getHeight()
+    player.angle = 0
     player.velocity = 0
     player.gravity = 700
     player.jumpStrength = -250
@@ -49,7 +50,7 @@ function love.load()
 end
 
 function DrawPlayer()
-    love.graphics.draw(player.sprite, player.x, player.y)
+    love.graphics.draw(player.sprite, player.x, player.y, player.angle)
 end
 
 function DrawBackground()
@@ -91,7 +92,7 @@ function DrawScore()
 end
 
 function DrawStats()
-    love.graphics.print(
+    love.graphics.printf(
         "FPS: " .. love.timer.getFPS() ..
         "\nPlayer X: " .. player.x ..
         "\nPlayer Y: " .. player.y ..
@@ -115,10 +116,12 @@ function love.keypressed(key)
 
     if game.state and key == "space" then
         -- load functionality
+        player.angle = math.rad(-45)  -- Point up-right
         player.velocity = player.jumpStrength
         love.audio.play(woosh_sfx)
     end
 
+    -- restart the game
     if game.state == false and key == "r" then
         game.state = true
         game.score = 0
@@ -127,15 +130,22 @@ function love.keypressed(key)
         pipes.y = love.math.random(64, 350)
         player.y = 200
         player.velocity = 0
+        player.angle = 0
     end
 end
 
 -- runs every frame
 function love.update(dt) -- dt = ~0.0167
-    if game.state then
-        player.velocity = player.velocity + player.gravity * dt
-        player.y = player.y + player.velocity * dt
+    player.velocity = player.velocity + player.gravity * dt
+    player.y = player.y + player.velocity * dt
 
+    if player.y + player.height >= ground.y then
+        player.y = ground.y - player.height
+        player.velocity = 0
+    end
+
+    if game.state then
+        player.angle = player.angle + math.rad(70) * dt
         background.x = background.x - 80 * dt
         ground.x = ground.x - 200 * dt
         pipes.x = pipes.x - 150 * dt
@@ -147,18 +157,18 @@ function love.update(dt) -- dt = ~0.0167
             love.audio.play(score_sfx)
         end
 
-        if checkCollision(player.x, player.y, player.width, player.height, pipes.x, pipes.y - pipes.height, pipes.width, pipes.height) or checkCollision(player.x, player.y, player.width, player.height, pipes.x, pipes.y + pipes.gap, pipes.width, pipes.height) then
+        if checkCollision(player.x, player.y, player.width - 7, player.height, pipes.x, pipes.y - pipes.height, pipes.width, pipes.height) or checkCollision(player.x, player.y, player.width, player.height, pipes.x, pipes.y + pipes.gap, pipes.width, pipes.height) then
             player.velocity = 0
             game.state = false
             love.audio.play(slap_sfx)
         end
 
+        -- don't do a collision check - better to set boundaries manually
         if player.y + player.height >= ground.y or player.y + player.y <= 0 then
             player.velocity = 0
             game.state = false
             love.audio.play(slap_sfx)
         end
-
     end
 end
 
