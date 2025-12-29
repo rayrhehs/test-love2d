@@ -85,13 +85,13 @@ end
 function DrawScore()
     -- love.graphics.print automatically chooses a font
     -- love.graphics.printf uses custom formatting
-    love.graphics.setColor(0.196, 0.090, 0.020)
+    love.graphics.setColor(0, 0, 0)
     love.graphics.printf(tostring(game.score), 0, 50, 400, "center")
     love.graphics.setColor(1, 1, 1)
 end
 
 function DrawGameOver()
-    love.graphics.setColor(0.196, 0.090, 0.020)
+    love.graphics.setColor(0, 0, 0)
     love.graphics.printf("Game Over" .. "\nPress R to restart", 0, 200, 400, "center")
     love.graphics.setColor(1, 1, 1)
 end
